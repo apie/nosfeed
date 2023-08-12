@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <title>NOS nieuws</title>
+<style>
+a {
+	color: black;
+	text-decoration: none;
+}
+a:visited {
+	color: purple
+}
+</style>
+</head>
+
+<body>
+<div id="container" class="row row-cols-md-4 g-2"> </div>
+
+<template id="tmpl">
+  <div class="col">
+	<div class="card">
+	  <a>
+		  <img src="..." class="card-img-top" title='hoi'>
+		  <div class="card-body">
+			<h5 class="card-title">Card title</h5>
+		  </div>
+	  </a>
+	</div>
+  </div>
+</template>
+    
+
+    <script type="text/javascript">
+		var seen = new Set();
+        var blacklist = ['FC Twente',
+            'Oranje',
+            'Rusland',
+            'Oekraïne',
+            'Oekraïnse',
+            'Rusland',
+            'Russische',
+            'droneaanval',
+            'tour de france',
+            'volleybal',
+            'WK-wedstrijd',
+        ];
+
+        var feeds = ['https://feeds.nos.nl/nosnieuwsalgemeen',
+            'https://feeds.nos.nl/nosnieuwsbinnenland',
+            'https://feeds.nos.nl/nosnieuwsbuitenland',
+            'https://feeds.nos.nl/nosnieuwspolitiek',
+            'https://feeds.nos.nl/nosnieuwseconomie',
+            'https://feeds.nos.nl/nosnieuwsopmerkelijk',
+            'https://feeds.nos.nl/nosnieuwskoningshuis',
+            'https://feeds.nos.nl/nosnieuwscultuurenmedia',
+            'https://feeds.nos.nl/nosnieuwstech',
+            //'https://feeds.nos.nl/nossportalgemeen',
+            //'https://feeds.nos.nl/nosvoetbal',
+            //'https://feeds.nos.nl/nossportwielrennen',
+            //'https://feeds.nos.nl/nossportschaatsen',
+            //'https://feeds.nos.nl/nossporttennis',
+            //'https://feeds.nos.nl/nossportformule1',
+            'https://feeds.nos.nl/nieuwsuuralgemeen',
+            'https://feeds.nos.nl/nosop3',
+            'https://feeds.nos.nl/jeugdjournaal',
+            'https://feeds.nos.nl/jeugdjournaal',
+            'https://feeds.nos.nl/nosnieuwsvideo',
+            //'https://feeds.nos.nl/nossportschaatsenvideo',
+            //'https://feeds.nos.nl/nossportwielrennenvideo',
+            //'https://feeds.nos.nl/nossportvoetbalvideo',
+            //'https://feeds.nos.nl/nossporttennisvideo',
+            //'https://feeds.nos.nl/nossportformule1video',
+        ];
+
+        function getit(url, maxItems) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.status == 'ok') {
+                        if (!maxItems) maxItems = data.items.length;
+                        for (var i = 0, t = maxItems; i < t; ++i) {
+                            var item = data.items[i];
+                            if (blacklist.filter((b) => item.title.toLowerCase().indexOf(b.toLowerCase()) !== -1 && b).length > 0) continue;
+							if (seen.has(item.title)) continue;
+							seen.add(item.title);
+                            var itemContainer = document.createElement('DIV');
+
+                            var itemTitleElement = document.createElement('H2');
+                            var itemLinkElement = document.createElement('A');
+                            itemLinkElement.setAttribute('href', item.link);
+                            itemLinkElement.innerText = item.title;
+                            itemTitleElement.appendChild(itemLinkElement);
+                            itemContainer.appendChild(itemTitleElement);
+							var it = tmpl.content.cloneNode(true)
+							it.querySelector('h5').innerText = item.title;
+							it.querySelector('img').setAttribute('src', item.enclosure.link);
+							it.querySelector('img').setAttribute('title', url);
+							it.querySelector('a').setAttribute('href', item.link);
+							container.append(it);
+                        }
+                    }
+                }
+            };
+            xhr.open(
+                'GET',
+                'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(url),
+                true
+            );
+            xhr.send();
+        }
+
+		for (var i = 0, t = feeds.length; i < t; ++i) {
+			getit(feeds[i], 3)
+		}
+
+    </script>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+</html>
