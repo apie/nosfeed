@@ -1,126 +1,126 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<title>NOS nieuws</title>
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-		<link rel="stylesheet" href="style.css" />
-		<link rel="icon" type="image/x-icon" href="favicon.ico" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	</head>
-	<body>
-		<h1>NOS nieuws</h1>
-		<details>
-			<summary>Categorieën</summary>
-			<ul id="categories">
-				<template id="catTmpl">
-					<li onClick="toggleCategory(this)"></li>
-				</template>
-			</ul>
-		</details>
-		<div id="btnContainer" class="mb-2">
-			Per categorie: 
-			<template id="btnTmpl">
-				<button class="btn btn-sm btn-outline-primary mx-1" onclick="toggleItemsPerFeed(this)">
-					5
-				</button>
-			</template>
-		</div>
-		<div id="container" class="row row-cols-md-4 g-2">
-			<template id="cardTmpl">
-			  <div class="col">
-				<div class="card">
-				  <a target="_blank">
-					  <img src="" class="card-img-top" title="hoi" loading="lazy">
-					  <div class="card-body">
-						<h5 class="card-title">Card title</h5>
-					  </div>
-				  </a>
-				</div>
-			  </div>
-			</template>
-		</div>
-		
-		<script src="feeds.js"></script>
-		<script src="blacklist.js"></script>
-		<script type="text/javascript">
-			const maxItemsPerFeed = localStorage.getItem('maxItemsPerFeed') || 10;
-			[5, 10, 100].forEach((m) => {
-				var btn = btnTmpl.content.cloneNode(true).querySelector('button')
-				btn.textContent = m;
-				//debugger;
-				if (m == maxItemsPerFeed) btn.classList.add('active');
-				btnContainer.append(btn);
-			});
+    <head>
+        <meta charset="UTF-8">
+        <title>NOS nieuws</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+        <link rel="stylesheet" href="style.css" />
+        <link rel="icon" type="image/x-icon" href="favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <h1>NOS nieuws</h1>
+        <details>
+            <summary>Categorieën</summary>
+            <ul id="categories">
+                <template id="catTmpl">
+                    <li onClick="toggleCategory(this)"></li>
+                </template>
+            </ul>
+        </details>
+        <div id="btnContainer" class="mb-2">
+            Per categorie: 
+            <template id="btnTmpl">
+                <button class="btn btn-sm btn-outline-primary mx-1" onclick="toggleItemsPerFeed(this)">
+                    5
+                </button>
+            </template>
+        </div>
+        <div id="container" class="row row-cols-md-4 g-2">
+            <template id="cardTmpl">
+              <div class="col">
+                <div class="card">
+                  <a target="_blank">
+                      <img src="" class="card-img-top" title="hoi" loading="lazy">
+                      <div class="card-body">
+                        <h5 class="card-title">Card title</h5>
+                      </div>
+                  </a>
+                </div>
+              </div>
+            </template>
+        </div>
+        
+        <script src="feeds.js"></script>
+        <script src="blacklist.js"></script>
+        <script type="text/javascript">
+            const maxItemsPerFeed = localStorage.getItem('maxItemsPerFeed') || 10;
+            [5, 10, 100].forEach((m) => {
+                var btn = btnTmpl.content.cloneNode(true).querySelector('button')
+                btn.textContent = m;
+                //debugger;
+                if (m == maxItemsPerFeed) btn.classList.add('active');
+                btnContainer.append(btn);
+            });
 
-			function toggleItemsPerFeed(e) {
-				localStorage.setItem('maxItemsPerFeed', e.textContent);
-				Array.from(e.parentElement.children).forEach((c) => c.classList.remove('active'));
-				e.classList.toggle('active');
-				//debugger;
-				//window.location.reload();
-			};
+            function toggleItemsPerFeed(e) {
+                localStorage.setItem('maxItemsPerFeed', e.textContent);
+                Array.from(e.parentElement.children).forEach((c) => c.classList.remove('active'));
+                e.classList.toggle('active');
+                //debugger;
+                //window.location.reload();
+            };
 
-			let ignoredCategories = JSON.parse(localStorage.getItem('ignoredCategories') || '{}');
-			function toggleCategory(e) {
-				ignoredCategories[e.dataset.url] = !Boolean(ignoredCategories[e.dataset.url]);
-				localStorage.setItem('ignoredCategories', JSON.stringify(ignoredCategories));
-				e.classList.toggle('negeren');
-				//window.location.reload();
-			};
+            let ignoredCategories = JSON.parse(localStorage.getItem('ignoredCategories') || '{}');
+            function toggleCategory(e) {
+                ignoredCategories[e.dataset.url] = !Boolean(ignoredCategories[e.dataset.url]);
+                localStorage.setItem('ignoredCategories', JSON.stringify(ignoredCategories));
+                e.classList.toggle('negeren');
+                //window.location.reload();
+            };
 
-			var seen = new Set();
-			function getFeed(row, maxItems) {
+            var seen = new Set();
+            function getFeed(row, maxItems) {
                 const name = row.split(',')[0];
                 const url = row.split(',')[1];
-				var xhr = new XMLHttpRequest();
-				xhr.onreadystatechange = function () {
-					if (xhr.readyState == 4 && xhr.status == 200) {
-						var data = JSON.parse(xhr.responseText);
-						if (data.status == 'ok') {
-							if (!maxItems) maxItems = data.items.length;
-							maxItems = Math.min(maxItems, data.items.length);
-							for (var i = 0, t = maxItems; i < t; ++i) {
-								var item = data.items[i];
-								if (blacklist.filter((b) => item.title.toLowerCase().indexOf(b.toLowerCase()) !== -1 && b).length > 0) {
-									console.log('ignoring item '+item.title);
-									continue;
-								};
-								if (seen.has(item.title)) continue;
-								seen.add(item.title);
-								var it = cardTmpl.content.cloneNode(true)
-								it.querySelector('h5').innerText = item.title;
-								it.querySelector('img').setAttribute('src', item.enclosure.link);
-								it.querySelector('img').setAttribute('title', name);
-								it.querySelector('a').setAttribute('href', item.link);
-								container.append(it);
-							}
-						}
-					}
-				};
-				xhr.open(
-					'GET',
-					'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(url),
-					true
-				);
-				xhr.send();
-			}
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        if (data.status == 'ok') {
+                            if (!maxItems) maxItems = data.items.length;
+                            maxItems = Math.min(maxItems, data.items.length);
+                            for (var i = 0, t = maxItems; i < t; ++i) {
+                                var item = data.items[i];
+                                if (blacklist.filter((b) => item.title.toLowerCase().indexOf(b.toLowerCase()) !== -1 && b).length > 0) {
+                                    console.log('ignoring item '+item.title);
+                                    continue;
+                                };
+                                if (seen.has(item.title)) continue;
+                                seen.add(item.title);
+                                var it = cardTmpl.content.cloneNode(true)
+                                it.querySelector('h5').innerText = item.title;
+                                it.querySelector('img').setAttribute('src', item.enclosure.link);
+                                it.querySelector('img').setAttribute('title', name);
+                                it.querySelector('a').setAttribute('href', item.link);
+                                container.append(it);
+                            }
+                        }
+                    }
+                };
+                xhr.open(
+                    'GET',
+                    'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(url),
+                    true
+                );
+                xhr.send();
+            }
 
-			for (var i = 0, t = feeds.length; i < t; ++i) {
+            for (var i = 0, t = feeds.length; i < t; ++i) {
                 const name = feeds[i].split(',')[0];
                 const url = feeds[i].split(',')[1];
-				var cat = catTmpl.content.cloneNode(true)
-				cat.querySelector('li').innerText = name;
-				cat.querySelector('li').dataset.url = url;
-				if (ignoredCategories[url]) {
-					console.log('ignoring '+name);
-					cat.querySelector('li').classList.add('negeren');
-				};
-				categories.append(cat);
-				if (ignoredCategories[url]) continue;
+                var cat = catTmpl.content.cloneNode(true)
+                cat.querySelector('li').innerText = name;
+                cat.querySelector('li').dataset.url = url;
+                if (ignoredCategories[url]) {
+                    console.log('ignoring '+name);
+                    cat.querySelector('li').classList.add('negeren');
+                };
+                categories.append(cat);
+                if (ignoredCategories[url]) continue;
                 setTimeout(getFeed, i*1000*2, feeds[i], maxItemsPerFeed);
             }
-		</script>
-	</body>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+        </script>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 </html>
