@@ -13,5 +13,6 @@ var blacklist = [
 	'wekdienst',
 	'nieuwswekker',
 	'tennis',
+	'pec zwolle',
 ];
 

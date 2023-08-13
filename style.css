@@ -1,4 +1,5 @@
 body {
+	padding: 1%;
 	background-color: lightsteelblue
 }
 a {
@@ -7,4 +8,11 @@ a {
 }
 a:visited {
 	color: purple
+}
+.negeren {
+	text-decoration: line-through;
+}
+#categories {
+	cursor: pointer;
+	width: 40%;
 }
