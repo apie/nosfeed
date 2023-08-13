@@ -63,18 +63,21 @@
 
 			let ignoredCategories = JSON.parse(localStorage.getItem('ignoredCategories') || '{}');
 			function toggleCategory(e) {
-				ignoredCategories[e.textContent] = !Boolean(ignoredCategories[e.textContent]);
+				ignoredCategories[e.dataset.url] = !Boolean(ignoredCategories[e.dataset.url]);
 				localStorage.setItem('ignoredCategories', JSON.stringify(ignoredCategories));
 				e.classList.toggle('negeren');
 				//window.location.reload();
 			};
 
 			var seen = new Set();
-			function getit(url, maxItems) {
+			function getFeed(row, maxItems) {
+                const name = row.split(',')[0];
+                const url = row.split(',')[1];
 				var cat = catTmpl.content.cloneNode(true)
-				cat.querySelector('li').innerText = url;
+				cat.querySelector('li').innerText = name;
+				cat.querySelector('li').dataset.url = url;
 				if (ignoredCategories[url]) {
-					console.log('ignoring '+url);
+					console.log('ignoring '+name);
 					cat.querySelector('li').classList.add('negeren');
 				};
 				categories.append(cat);
@@ -97,7 +100,7 @@
 								var it = cardTmpl.content.cloneNode(true)
 								it.querySelector('h5').innerText = item.title;
 								it.querySelector('img').setAttribute('src', item.enclosure.link);
-								it.querySelector('img').setAttribute('title', url);
+								it.querySelector('img').setAttribute('title', name);
 								it.querySelector('a').setAttribute('href', item.link);
 								container.append(it);
 							}
@@ -112,7 +115,7 @@
 				xhr.send();
 			}
 
-			for (var i = 0, t = feeds.length; i < t; ++i) { getit(feeds[i], maxItemsPerFeed) }
+			for (var i = 0, t = feeds.length; i < t; ++i) { getFeed(feeds[i], maxItemsPerFeed) }
 		</script>
 	</body>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
