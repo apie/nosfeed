@@ -1,87 +1,64 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>NOS nieuws</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-    <style>
-        a {
-            color: black;
-            text-decoration: none;
-        }
-        a:visited {
-            color: purple
-        }
-    </style>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
+	<head>
+		<meta charset="UTF-8">
+		<title>NOS nieuws</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+		<link rel="stylesheet" href="style.css" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+		<div id="container" class="row row-cols-md-4 g-2"> </div>
 
-<body>
-<div id="container" class="row row-cols-md-4 g-2"> </div>
-
-<template id="tmpl">
-  <div class="col">
-	<div class="card">
-	  <a>
-		  <img src="..." class="card-img-top" title='hoi'>
-		  <div class="card-body">
-			<h5 class="card-title">Card title</h5>
+		<template id="tmpl">
+		  <div class="col">
+			<div class="card">
+			  <a>
+				  <img src="" class="card-img-top" title='hoi'>
+				  <div class="card-body">
+					<h5 class="card-title">Card title</h5>
+				  </div>
+			  </a>
+			</div>
 		  </div>
-	  </a>
-	</div>
-  </div>
-</template>
-    
-    <script src="feeds.js"></script>
-    <script src="blacklist.js"></script>
-    <script type="text/javascript">
-		var seen = new Set();
+		</template>
+		
+		<script src="feeds.js"></script>
+		<script src="blacklist.js"></script>
+		<script type="text/javascript">
+			var seen = new Set();
+			function getit(url, maxItems) {
+				var xhr = new XMLHttpRequest();
+				xhr.onreadystatechange = function () {
+					if (xhr.readyState == 4 && xhr.status == 200) {
+						var data = JSON.parse(xhr.responseText);
+						if (data.status == 'ok') {
+							if (!maxItems) maxItems = data.items.length;
+							for (var i = 0, t = maxItems; i < t; ++i) {
+								var item = data.items[i];
+								if (blacklist.filter((b) => item.title.toLowerCase().indexOf(b.toLowerCase()) !== -1 && b).length > 0) continue;
+								if (seen.has(item.title)) continue;
+								seen.add(item.title);
+								var it = tmpl.content.cloneNode(true)
+								it.querySelector('h5').innerText = item.title;
+								it.querySelector('img').setAttribute('src', item.enclosure.link);
+								it.querySelector('img').setAttribute('title', url);
+								it.querySelector('a').setAttribute('href', item.link);
+								container.append(it);
+							}
+						}
+					}
+				};
+				xhr.open(
+					'GET',
+					'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(url),
+					true
+				);
+				xhr.send();
+			}
 
-        function getit(url, maxItems) {
-            var xhr = new XMLHttpRequest();
-
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    var data = JSON.parse(xhr.responseText);
-                    if (data.status == 'ok') {
-                        if (!maxItems) maxItems = data.items.length;
-                        for (var i = 0, t = maxItems; i < t; ++i) {
-                            var item = data.items[i];
-                            if (blacklist.filter((b) => item.title.toLowerCase().indexOf(b.toLowerCase()) !== -1 && b).length > 0) continue;
-							if (seen.has(item.title)) continue;
-							seen.add(item.title);
-                            var itemContainer = document.createElement('DIV');
-
-                            var itemTitleElement = document.createElement('H2');
-                            var itemLinkElement = document.createElement('A');
-                            itemLinkElement.setAttribute('href', item.link);
-                            itemLinkElement.innerText = item.title;
-                            itemTitleElement.appendChild(itemLinkElement);
-                            itemContainer.appendChild(itemTitleElement);
-							var it = tmpl.content.cloneNode(true)
-							it.querySelector('h5').innerText = item.title;
-							it.querySelector('img').setAttribute('src', item.enclosure.link);
-							it.querySelector('img').setAttribute('title', url);
-							it.querySelector('a').setAttribute('href', item.link);
-							container.append(it);
-                        }
-                    }
-                }
-            };
-            xhr.open(
-                'GET',
-                'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(url),
-                true
-            );
-            xhr.send();
-        }
-
-		for (var i = 0, t = feeds.length; i < t; ++i) {
-			getit(feeds[i], 3)
-		}
-
-    </script>
-</body>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+			for (var i = 0, t = feeds.length; i < t; ++i) { getit(feeds[i], 4) }
+		</script>
+	</body>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 </html>

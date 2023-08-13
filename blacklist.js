@@ -10,5 +10,8 @@ var blacklist = [
     'tour de france',
     'volleybal',
     'WK-wedstrijd',
+	'wekdienst',
+	'nieuwswekker',
+	'tennis',
 ];
 
