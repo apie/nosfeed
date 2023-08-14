@@ -26,18 +26,25 @@
                 </button>
             </template>
         </div>
-        <div id="container" class="row row-cols-md-4 g-2">
+        <div id="container" class="row row-cols-1 row-cols-lg-2 g-2">
             <template id="cardTmpl">
-              <div class="col d-flex"><!-- flex makes all the cols the same height -->
-                <div class="card">
+              <div class="col">
                   <a target="_blank">
-                      <img src="" class="card-img-top" title="hoi" loading="lazy">
-                      <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                      </div>
+                    <div class="card h-100">
+                        <div class="row g-0 h-100">
+                            <div class="col-4">
+                              <img src="" class="card-img h-100" style="border-top-right-radius: 0px; border-bottom-right-radius: 0px; object-fit: cover" title="hoi" loading="lazy">
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">Card title</h5>
+                                        <p class="d-none d-md-block card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                   </a>
                 </div>
-              </div>
             </template>
         </div>
         <footer id="footer">&mdash; alle content (c) NOS. site gemaakt door <a href="https://www.denick.org">denick.org</a> &mdash;</footer>
@@ -91,6 +98,7 @@
                                 seen.add(item.title);
                                 var it = cardTmpl.content.cloneNode(true)
                                 it.querySelector('h5').innerText = item.title;
+                                it.querySelector('p').innerText = item.description.substr(4, 100)+'...';
                                 it.querySelector('img').setAttribute('src', item.enclosure.link);
                                 it.querySelector('img').setAttribute('title', name);
                                 it.querySelector('a').setAttribute('href', item.link);
