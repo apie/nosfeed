@@ -40,16 +40,17 @@
               </div>
             </template>
         </div>
+        <footer id="footer">&mdash; alle content (c) NOS. site gemaakt door <a href="https://www.denick.org">denick.org</a> &mdash;</footer>
         
         <script src="feeds.js"></script>
         <script src="blacklist.js"></script>
+        <script src="util.js"></script>
         <script type="text/javascript">
             const DEBUG = new URLSearchParams(window.location.search).get('debug') === 'true';
             const maxItemsPerFeed = localStorage.getItem('maxItemsPerFeed') || 10;
-            [5, 10, 100].forEach((m) => {
+            [10, 20, 50, 100].forEach((m) => {
                 var btn = btnTmpl.content.cloneNode(true).querySelector('button')
                 btn.textContent = m;
-                //debugger;
                 if (m == maxItemsPerFeed) btn.classList.add('active');
                 btnContainer.append(btn);
             });
@@ -58,7 +59,6 @@
                 localStorage.setItem('maxItemsPerFeed', e.textContent);
                 Array.from(e.parentElement.children).forEach((c) => c.classList.remove('active'));
                 e.classList.toggle('active');
-                //debugger;
                 //window.location.reload();
             };
 
@@ -84,7 +84,7 @@
                             for (var i = 0, t = maxItems; i < t; ++i) {
                                 var item = data.items[i];
                                 if (blacklist.filter((b) => item.title.toLowerCase().indexOf(b.toLowerCase()) !== -1 && b).length > 0) {
-                                    console.log('ignoring item '+item.title);
+                                    if (DEBUG) console.log('ignoring item '+item.title);
                                     continue;
                                 };
                                 if (seen.has(item.title)) continue;
@@ -108,19 +108,40 @@
             }
 
             for (var i = 0, t = feeds.length; i < t; ++i) {
-                if (DEBUG && i>0) continue;
                 const name = feeds[i].split(',')[0];
                 const url = feeds[i].split(',')[1];
                 var cat = catTmpl.content.cloneNode(true)
                 cat.querySelector('li').innerText = name;
                 cat.querySelector('li').dataset.url = url;
                 if (ignoredCategories[url]) {
-                    console.log('ignoring '+name);
+                    if (DEBUG) console.log('ignoring '+name);
                     cat.querySelector('li').classList.add('negeren');
                 };
                 categories.append(cat);
-                if (ignoredCategories[url]) continue;
-                setTimeout(getFeed, i*1000*2, feeds[i], maxItemsPerFeed);
+            }
+
+            function loadNextFeed() {
+                let url = '';
+                let feed = undefined;
+                do {
+                    feed = feeds.shift();
+                    url = feed && feed.split(',')[1];
+                    if (DEBUG && ignoredCategories[url]) console.log('IGNORING '+url);
+                } while (ignoredCategories[url])
+                feed && getFeed(feed, maxItemsPerFeed);
+            }
+            loadNextFeed(); //load initial feed
+
+			loadNextFeedDebounced = debounce(loadNextFeed, 100);
+
+			if (isInViewport(footer)) loadNextFeedDebounced();
+            window.onscroll = function() {
+                var scrollHeight, totalHeight;
+                scrollHeight = document.body.scrollHeight;
+                totalHeight = window.scrollY + window.innerHeight;
+                // load next feed if at 95% of the window (near the bottom)
+				if (DEBUG) console.log(Math.round(100*totalHeight/scrollHeight)+'%');
+                if(totalHeight >= scrollHeight * 0.95) loadNextFeedDebounced();
             }
         </script>
     </body>
