@@ -44,6 +44,7 @@
         <script src="feeds.js"></script>
         <script src="blacklist.js"></script>
         <script type="text/javascript">
+            const DEBUG = new URLSearchParams(window.location.search).get('debug') === 'true';
             const maxItemsPerFeed = localStorage.getItem('maxItemsPerFeed') || 10;
             [5, 10, 100].forEach((m) => {
                 var btn = btnTmpl.content.cloneNode(true).querySelector('button')
@@ -107,6 +108,7 @@
             }
 
             for (var i = 0, t = feeds.length; i < t; ++i) {
+                if (DEBUG && i>0) continue;
                 const name = feeds[i].split(',')[0];
                 const url = feeds[i].split(',')[1];
                 var cat = catTmpl.content.cloneNode(true)
