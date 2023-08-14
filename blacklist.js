@@ -14,5 +14,6 @@ var blacklist = [
 	'nieuwswekker',
 	'tennis',
 	'pec zwolle',
+    'vanavond op tv',
 ];
 
