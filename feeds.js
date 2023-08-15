@@ -1,4 +1,7 @@
 var feeds = [
+    'Gecombineerd,https://vps.stad.gr/nieuws/combined.rss',
+];
+var categories = [
     'NOS Nieuws Algemeen,https://feeds.nos.nl/nosnieuwsalgemeen',
     'NOS Nieuws Binnenland,https://feeds.nos.nl/nosnieuwsbinnenland',
     'NOS Nieuws Buitenland,https://feeds.nos.nl/nosnieuwsbuitenland',
@@ -23,4 +26,5 @@ var feeds = [
     'NOS Sport Voetbal Video,https://feeds.nos.nl/nossportvoetbalvideo',
     'NOS Sport Tennis Video,https://feeds.nos.nl/nossporttennisvideo',
     'NOS Sport Formule 1 Video,https://feeds.nos.nl/nossportformule1video',
+    'NU.nl goed nieuws,https://bitreading.com/deltafeed/deliverdiffs.php?siteid=b05d280812cd5fce81b5c85a13ad1107',
 ];

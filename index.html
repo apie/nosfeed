@@ -12,7 +12,7 @@
         <h1>NOS nieuws</h1>
         <details>
             <summary>Categorieën</summary>
-            <ul id="categories">
+            <ul id="categoriesul">
                 <template id="catTmpl">
                     <li onClick="toggleCategory(this)"></li>
                 </template>
@@ -39,6 +39,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">Card title</h5>
                                     <p class="d-none d-md-block card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                                    <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
                             </div>
                           </a>
                         </div>
@@ -47,12 +48,13 @@
               </div>
             </template>
         </div>
-        <footer id="footer">&mdash; alle content (c) NOS. site gemaakt door <a href="https://www.denick.org">denick.org</a> &mdash;</footer>
+        <footer id="footer">&mdash; alle content (c) <a href="https://www.nos.nl">NOS</a> en <a href="https://www.nu.nl">nu.nl</a>. site gemaakt door <a href="https://www.denick.org">denick.org</a> &mdash;</footer>
         
         <script src="feeds.js"></script>
         <script src="blacklist.js"></script>
         <script src="util.js"></script>
         <script type="text/javascript">
+            let catCount = {}
             const DEBUG = new URLSearchParams(window.location.search).get('debug') === 'true';
             const maxItemsPerFeed = localStorage.getItem('maxItemsPerFeed') || 10;
             [10, 20, 50, 100].forEach((m) => {
@@ -71,7 +73,7 @@
 
             let ignoredCategories = JSON.parse(localStorage.getItem('ignoredCategories') || '{}');
             function toggleCategory(e) {
-                ignoredCategories[e.dataset.url] = !Boolean(ignoredCategories[e.dataset.url]);
+                ignoredCategories[e.innerText] = !Boolean(ignoredCategories[e.innerText]);
                 localStorage.setItem('ignoredCategories', JSON.stringify(ignoredCategories));
                 e.classList.toggle('negeren');
                 //window.location.reload();
@@ -86,9 +88,7 @@
                     if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
                         var data = JSON.parse(xhr.responseText);
                         if (data.status == 'ok') {
-                            if (!maxItems) maxItems = data.items.length;
-                            maxItems = Math.min(maxItems, data.items.length);
-                            for (var i = 0, t = maxItems; i < t; ++i) {
+                            for (var i = 0, t = data.items.length; i < t; ++i) {
                                 var item = data.items[i];
                                 if (blacklist.filter((b) => item.title.toLowerCase().indexOf(b.toLowerCase()) !== -1 && b).length > 0) {
                                     if (DEBUG) console.log('ignoring item '+item.title);
@@ -96,12 +96,21 @@
                                 };
                                 if (seen.has(item.title)) continue;
                                 seen.add(item.title);
+                                var itemcat = item.categories.shift()
+                                if (ignoredCategories[itemcat]) {
+                                    if (DEBUG) console.log('IGNORING '+itemcat);
+                                    continue
+                                };
+                                catCount[itemcat] += 1;
+                                if (catCount[itemcat] > maxItems) continue;
                                 var it = cardTmpl.content.cloneNode(true)
                                 it.querySelector('h5').innerText = item.title;
-                                it.querySelector('p').innerText = item.description.substr(4, 100)+'...';
-                                it.querySelector('img').setAttribute('src', item.enclosure.link);
-                                it.querySelector('img').setAttribute('title', name);
+                                it.querySelector('p').innerText = item.description.substr(0, 100)+'...';
+                                if(item.enclosure.link) it.querySelector('img').setAttribute('src', item.enclosure.link);
+                                it.querySelector('img').setAttribute('title', itemcat);
                                 it.querySelector('a').setAttribute('href', item.link);
+                                it.querySelector('small').innerText = timeSince(new Date(item.pubDate))+' geleden';
+                                it.querySelector('small').setAttribute('title', item.pubDate);
                                 container.append(it);
                             }
                         }
@@ -109,48 +118,30 @@
                 };
                 xhr.open(
                     'GET',
-                    'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(url)+'&api_key=2g5ybsnldp1iyftvj4zykhm61camksbjk4fmnsrx',
+                    'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(url)+'&api_key=2g5ybsnldp1iyftvj4zykhm61camksbjk4fmnsrx&count=1000',
                     true
                 );
                 xhr.send();
             }
 
-            for (var i = 0, t = feeds.length; i < t; ++i) {
-                const name = feeds[i].split(',')[0];
-                const url = feeds[i].split(',')[1];
+            for (var i = 0, t = categories.length; i < t; ++i) {
+                const name = categories[i].split(',')[0];
                 var cat = catTmpl.content.cloneNode(true)
                 cat.querySelector('li').innerText = name;
-                cat.querySelector('li').dataset.url = url;
-                if (ignoredCategories[url]) {
+                if (ignoredCategories[name]) {
                     if (DEBUG) console.log('ignoring '+name);
                     cat.querySelector('li').classList.add('negeren');
                 };
-                categories.append(cat);
+                categoriesul.append(cat);
+                catCount[name] = 0;
             }
 
             function loadNextFeed() {
                 let url = '';
-                let feed = undefined;
-                do {
-                    feed = feeds.shift();
-                    url = feed && feed.split(',')[1];
-                    if (DEBUG && ignoredCategories[url]) console.log('IGNORING '+url);
-                } while (ignoredCategories[url])
+                let feed = feeds.shift();
                 feed && getFeed(feed, maxItemsPerFeed);
             }
             loadNextFeed(); //load initial feed
-
-			loadNextFeedDebounced = debounce(loadNextFeed, 100);
-
-			if (isInViewport(footer)) loadNextFeedDebounced();
-            window.onscroll = function() {
-                var scrollHeight, totalHeight;
-                scrollHeight = document.body.scrollHeight;
-                totalHeight = window.scrollY + window.innerHeight;
-                // load next feed if at 95% of the window (near the bottom)
-				if (DEBUG) console.log(Math.round(100*totalHeight/scrollHeight)+'%');
-                if(totalHeight >= scrollHeight * 0.95) loadNextFeedDebounced();
-            }
         </script>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
