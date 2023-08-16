@@ -105,7 +105,7 @@
                                 if (catCount[itemcat] > maxItems) continue;
                                 var it = cardTmpl.content.cloneNode(true)
                                 it.querySelector('h5').innerText = item.title;
-                                it.querySelector('p').innerText = item.description.substr(0, 100)+'...';
+                                it.querySelector('p').innerText = item.description.trim().replaceAll('<p>', '').replaceAll('</p>', '').substr(0, 100)+'...';
                                 if(item.enclosure.link) it.querySelector('img').setAttribute('src', item.enclosure.link);
                                 it.querySelector('img').setAttribute('title', itemcat);
                                 it.querySelector('a').setAttribute('href', item.link);
@@ -118,7 +118,7 @@
                 };
                 xhr.open(
                     'GET',
-                    'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(url)+'&api_key=2g5ybsnldp1iyftvj4zykhm61camksbjk4fmnsrx&count=1000',
+                    'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(url)+'&api_key=2g5ybsnldp1iyftvj4zykhm61camksbjk4fmnsrx&count=999',
                     true
                 );
                 xhr.send();
