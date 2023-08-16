@@ -24,3 +24,19 @@ footer {
     padding: 5px;
     text-align: center;
 }
+@keyframes updown {
+	0% {
+		transform: translateY(-100%);
+	}
+
+	50% {
+		transform: translateY(100%);
+	}
+
+	100% {
+		transform: translateY(-100%);
+	}
+}
+#loader {
+	animation: updown 2s ease infinite;
+}
