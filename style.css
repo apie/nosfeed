@@ -38,5 +38,6 @@ footer {
 	}
 }
 #loader {
-	animation: updown 2s ease infinite;
+    /* https://stackoverflow.com/questions/59135939/how-to-make-an-icon-move-up-and-down-with-css-animation/59136035#59136035 */
+    animation: updown 2s ease infinite;
 }

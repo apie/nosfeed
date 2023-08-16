@@ -18,8 +18,14 @@
                 </template>
             </ul>
         </details>
+        <details>
+            <summary>Filter</summary>
+            <textarea id="blacklistInput" rows=5 style="width: 100%;" onKeyup="saveBlackList(this)">
+                test
+            </textarea>
+        </details>
         <div id="btnContainer" class="mb-2">
-            Per categorie: 
+            Berichten per categorie: 
             <template id="btnTmpl">
                 <button class="btn btn-sm btn-outline-primary mx-1" onclick="toggleItemsPerFeed(this)">
                     5
@@ -54,7 +60,6 @@
         <footer id="footer">&mdash; alle content (c) <a href="https://www.nos.nl">NOS</a> en <a href="https://www.nu.nl">nu.nl</a>. site gemaakt door <a href="https://www.denick.org">denick.org</a> &mdash;</footer>
         
         <script src="feeds.js"></script>
-        <script src="blacklist.js"></script>
         <script src="util.js"></script>
         <script type="text/javascript">
             let catCount = {}
@@ -66,6 +71,11 @@
                 if (m == maxItemsPerFeed) btn.classList.add('active');
                 btnContainer.append(btn);
             });
+
+            blacklistInput.value = localStorage.getItem('blackList') || '';
+            function saveBlackList(e) {
+                localStorage.setItem('blackList', e.value);
+            };
 
             function toggleItemsPerFeed(e) {
                 localStorage.setItem('maxItemsPerFeed', e.textContent);
@@ -94,7 +104,7 @@
                         if (data.status == 'ok') {
                             for (var i = 0, t = data.items.length; i < t; ++i) {
                                 var item = data.items[i];
-                                if (blacklist.filter((b) => item.title.toLowerCase().indexOf(b.toLowerCase()) !== -1 && b).length > 0) {
+                                if (blacklistInput.value.split(',').filter((b) => item.title.toLowerCase().indexOf(b.trim().toLowerCase()) !== -1 && b).length > 0) {
                                     if (DEBUG) console.log('ignoring item '+item.title);
                                     continue;
                                 };
