@@ -27,4 +27,4 @@ var categories = [
     'NOS Sport Tennis Video,https://feeds.nos.nl/nossporttennisvideo',
     'NOS Sport Formule 1 Video,https://feeds.nos.nl/nossportformule1video',
     'NU.nl goed nieuws,https://bitreading.com/deltafeed/deliverdiffs.php?siteid=b05d280812cd5fce81b5c85a13ad1107',
-];
+].sort();
