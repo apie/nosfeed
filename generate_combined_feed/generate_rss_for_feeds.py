@@ -58,7 +58,6 @@ def write_complete_rss_for_feeds(feeds, filename):
         feed_name, feed_url = feed.strip().split(',')
         if feed_name[0] == '#':
             continue
-        print(feed_name)
         for item in yield_feed_entry(feed_url.strip()):
             if item['title'] in seen:
                 continue
@@ -69,7 +68,7 @@ def write_complete_rss_for_feeds(feeds, filename):
             new_feed.add_item(
                 title=item['title'],
                 link=item['link'],
-                description=item['title'],
+                description=item['description'],
                 pubdate=item['published_datetime'],
                 enclosure=enclosure,
                 categories=(feed_name,),
