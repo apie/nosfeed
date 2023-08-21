@@ -59,10 +59,11 @@
         </div>
         <footer id="footer">&mdash; alle content (c) <a href="https://www.nos.nl">NOS</a> en <a href="https://www.nu.nl">nu.nl</a>. site gemaakt door <a href="https://www.denick.org">denick.org</a> &mdash;</footer>
         
-        <script src="feeds.js"></script>
         <script src="util.js"></script>
         <script type="text/javascript">
+            const feed ='Gecombineerd,https://vps.stad.gr/nieuws/combined.rss';
             let catCount = {}
+            const categories = new Set();
             const DEBUG = new URLSearchParams(window.location.search).get('debug') === 'true';
             const maxItemsPerFeed = localStorage.getItem('maxItemsPerFeed') || 10;
             [10, 20, 50, 100].forEach((m) => {
@@ -111,10 +112,12 @@
                                 if (seen.has(item.title)) continue;
                                 seen.add(item.title);
                                 var itemcat = item.categories.shift()
+                                categories.add(itemcat);
                                 if (ignoredCategories[itemcat]) {
                                     if (DEBUG) console.log('IGNORING '+itemcat);
                                     continue
                                 };
+                                if (!catCount.hasOwnProperty(itemcat)) catCount[itemcat] = 0;
                                 catCount[itemcat] += 1;
                                 if (catCount[itemcat] > maxItems) continue;
                                 var it = cardTmpl.content.cloneNode(true)
@@ -126,7 +129,8 @@
                                 it.querySelector('small').innerText = timeSince(new Date(item.pubDate))+' geleden';
                                 it.querySelector('small').setAttribute('title', item.pubDate);
                                 container.append(it);
-                            }
+                            };
+                            printCategories();
                         }
                     }
                 };
@@ -138,24 +142,19 @@
                 xhr.send();
             }
 
-            for (var i = 0, t = categories.length; i < t; ++i) {
-                const name = categories[i].split(',')[0];
-                var cat = catTmpl.content.cloneNode(true)
-                cat.querySelector('li').innerText = name;
-                if (ignoredCategories[name]) {
-                    if (DEBUG) console.log('ignoring '+name);
-                    cat.querySelector('li').classList.add('negeren');
-                };
-                categoriesul.append(cat);
-                catCount[name] = 0;
-            }
+            function printCategories () {
+                categories.forEach((name) => {
+                    var cat = catTmpl.content.cloneNode(true)
+                    cat.querySelector('li').innerText = name;
+                    if (ignoredCategories[name]) {
+                        if (DEBUG) console.log('ignoring '+name);
+                        cat.querySelector('li').classList.add('negeren');
+                    };
+                    categoriesul.append(cat);
+                });
+            };
 
-            function loadNextFeed() {
-                let url = '';
-                let feed = feeds.shift();
-                feed && getFeed(feed, maxItemsPerFeed);
-            }
-            loadNextFeed(); //load initial feed
+            getFeed(feed, maxItemsPerFeed);
         </script>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
