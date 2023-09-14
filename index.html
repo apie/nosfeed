@@ -41,16 +41,20 @@
                 <div class="card h-100">
                     <a target="_blank" class="h-100">
                         <div class="row g-0 h-100">
-                                <div class="col-4">
-                                    <img src="" class="card-img h-100" style="border-top-right-radius: 0px; border-bottom-right-radius: 0px; object-fit: cover" title="hoi" loading="lazy">
+                            <div class="col-4">
+                                <img src="" class="card-img h-100" style="border-top-right-radius: 0px; border-bottom-right-radius: 0px; object-fit: cover" title="hoi" loading="lazy">
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">Card title</h5>
+                                    <p class="d-none d-md-block card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                                    <p class="card-text">
+                                        <small class="text-body-secondary pubdate">Last updated 3 mins ago</small>
+                                        <span class="text-body-secondary">&mdash;</span>
+                                        <small class="text-body-secondary category">Algemeen</small>
+                                    </p>
                                 </div>
-                                <div class="col-8">
-                                        <div class="card-body">
-                                                <h5 class="card-title">Card title</h5>
-                                                        <p class="d-none d-md-block card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                                        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
-                                        </div>
-                                </div>
+                            </div>
                         </div>
                     </a>
                 </div>
@@ -126,8 +130,9 @@
                                 if(item.enclosure.link) it.querySelector('img').setAttribute('src', item.enclosure.link);
                                 it.querySelector('img').setAttribute('title', itemcat);
                                 it.querySelector('a').setAttribute('href', item.link);
-                                it.querySelector('small').innerText = timeSince(new Date(item.pubDate))+' geleden';
-                                it.querySelector('small').setAttribute('title', item.pubDate);
+                                it.querySelector('small.pubdate').innerText = timeSince(new Date(item.pubDate))+' geleden';
+                                it.querySelector('small.pubdate').setAttribute('title', item.pubDate);
+                                it.querySelector('small.category').innerText = itemcat;
                                 container.append(it);
                             };
                             printCategories();
