@@ -24,6 +24,10 @@
                 test
             </textarea>
         </details>
+        <label>
+            <input id="hideseencheckbox" type="checkbox" onChange="toggleHideSeen(this)"> </input>
+            Gelezen verbergen
+        </label>
         <div id="btnContainer" class="mb-2">
             Berichten per categorie: 
             <template id="btnTmpl">
@@ -39,7 +43,7 @@
             <template id="cardTmpl">
               <div class="col">
                 <div class="card h-100">
-                    <a target="_blank" class="h-100">
+                    <a target="_blank" class="h-100" onclick="markSeen(this)">
                         <div class="row g-0 h-100">
                             <div class="col-4">
                                 <img src="" class="card-img h-100" style="border-top-right-radius: 0px; border-bottom-right-radius: 0px; object-fit: cover" title="hoi" loading="lazy">
@@ -89,6 +93,10 @@
                 //window.location.reload();
             };
 
+            function toggleHideSeen(e) {
+                localStorage.setItem('hideSeen', e.checked);
+            };
+
             let ignoredCategories = JSON.parse(localStorage.getItem('ignoredCategories') || '{}');
             function toggleCategory(e) {
                 ignoredCategories[e.innerText] = !Boolean(ignoredCategories[e.innerText]);
@@ -97,7 +105,20 @@
                 //window.location.reload();
             };
 
+            function markSeen(e) {
+                if (localStorage.getItem('hideSeen') !== 'true') return;
+                if (DEBUG) console.log('marking as seen '+e.href);
+                // expire in two days
+                document.cookie = e.href+'=seen; max-age=172800; SameSite=Strict;';
+            }
             var seen = new Set();
+            if (localStorage.getItem('hideSeen') === 'true') {
+                hideseencheckbox.checked = true;
+                // Load opened items from cookie and add to seen-set
+                let c = document.cookie;
+                c.split(';').map((c) => c.split('=')[0].trim()).forEach((u) => seen.add(u));
+            };
+
             function getFeed(row, maxItems) {
                 const name = row.split(',')[0];
                 const url = row.split(',')[1];
@@ -113,8 +134,11 @@
                                     if (DEBUG) console.log('ignoring item '+item.title);
                                     continue;
                                 };
-                                if (seen.has(item.title)) continue;
-                                seen.add(item.title);
+                                if (seen.has(item.link)) {
+                                    if (DEBUG) console.log('seen '+item.title);
+                                    continue;
+                                }
+                                seen.add(item.link);
                                 var itemcat = item.categories.shift()
                                 categories.add(itemcat);
                                 if (ignoredCategories[itemcat]) {
