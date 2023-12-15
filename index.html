@@ -28,21 +28,34 @@
                 test
             </textarea>
         </details>
+        <details>
+            <summary>Aantallen</summary>
+            <div id="btnContainer" class="mb-2">
+                Berichten per categorie: 
+                <template id="btnTmpl">
+                    <button class="btn btn-sm btn-outline-primary mx-1" onclick="toggleItemsPerFeed(this)">
+                        5
+                    </button>
+                </template>
+            </div>
+            <div id="maxMsgBtnContainer" class="mb-2">
+                Totaal aantal berichten: 
+                <template id="maxMsgBtnTmpl">
+                    <button class="btn btn-sm btn-outline-primary mx-1" onclick="toggleMaxItems(this)">
+                        5
+                    </button>
+                </template>
+            </div>
+        </details>
         <label>
             <input id="hideseencheckbox" type="checkbox" onChange="toggleHideSeen(this)"> </input>
             Gelezen verbergen
         </label>
-        <div id="btnContainer" class="mb-2">
-            Berichten per categorie: 
-            <template id="btnTmpl">
-                <button class="btn btn-sm btn-outline-primary mx-1" onclick="toggleItemsPerFeed(this)">
-                    5
-                </button>
-            </template>
-        </div>
+
         <div id="loader" style="text-align: center; margin: 150px;">
             Laden ...
         </div>
+
         <div id="container" class="row row-cols-1 row-cols-lg-2 g-1">
             <template id="cardTmpl">
               <div class="col">
@@ -74,122 +87,11 @@
         <script src="util.js"></script>
         <script src="config.js"></script>
         <script type="text/javascript">
-            const feed ='Gecombineerd,https://vps.stad.gr/nieuws/combined.rss';
-            let catCount = {}
-            const categories = new Set();
-            const DEBUG = new URLSearchParams(window.location.search).get('debug') === 'true';
-            const maxItemsPerFeed = localStorage.getItem('maxItemsPerFeed') || 10;
-            [10, 20, 50, 100].forEach((m) => {
-                var btn = btnTmpl.content.cloneNode(true).querySelector('button')
-                btn.textContent = m;
-                if (m == maxItemsPerFeed) btn.classList.add('active');
-                btnContainer.append(btn);
-            });
-
-            blacklistInput.value = localStorage.getItem('blackList') || '';
-            function saveBlackList(e) {
-                localStorage.setItem('blackList', e.value);
-            };
-
-            function toggleItemsPerFeed(e) {
-                localStorage.setItem('maxItemsPerFeed', e.textContent);
-                Array.from(e.parentElement.children).forEach((c) => c.classList.remove('active'));
-                e.classList.toggle('active');
-                //window.location.reload();
-            };
-
-            function toggleHideSeen(e) {
-                localStorage.setItem('hideSeen', e.checked);
-            };
-
-            let ignoredCategories = JSON.parse(localStorage.getItem('ignoredCategories') || '{}');
-            function toggleCategory(e) {
-                ignoredCategories[e.innerText] = !Boolean(ignoredCategories[e.innerText]);
-                localStorage.setItem('ignoredCategories', JSON.stringify(ignoredCategories));
-                e.classList.toggle('negeren');
-                //window.location.reload();
-            };
-
-            function markSeen(e) {
-                if (localStorage.getItem('hideSeen') !== 'true') return;
-                if (DEBUG) console.log('marking as seen '+e.href);
-                // expire in two days
-                document.cookie = e.href+'=seen; max-age=172800; SameSite=Strict;';
-            }
-            var seen = new Set();
-            if (localStorage.getItem('hideSeen') === 'true') {
-                hideseencheckbox.checked = true;
-                // Load opened items from cookie and add to seen-set
-                let c = document.cookie;
-                c.split(';').map((c) => c.split('=')[0].trim()).forEach((u) => seen.add(u));
-            };
-
-            function getFeed(row, maxItems) {
-                const name = row.split(',')[0];
-                const url = row.split(',')[1];
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
-                        loader.remove();
-                        var data = JSON.parse(xhr.responseText);
-                        if (data.status == 'ok') {
-                            for (var i = 0, t = data.items.length; i < t; ++i) {
-                                var item = data.items[i];
-                                if (blacklistInput.value.split(',').filter((b) => item.title.toLowerCase().indexOf(b.trim().toLowerCase()) !== -1 && b).length > 0) {
-                                    if (DEBUG) console.log('ignoring item '+item.title);
-                                    continue;
-                                };
-                                if (seen.has(item.link)) {
-                                    if (DEBUG) console.log('seen '+item.title);
-                                    continue;
-                                }
-                                seen.add(item.link);
-                                var itemcat = item.categories.shift()
-                                categories.add(itemcat);
-                                if (ignoredCategories[itemcat]) {
-                                    if (DEBUG) console.log('IGNORING '+itemcat);
-                                    continue
-                                };
-                                if (!catCount.hasOwnProperty(itemcat)) catCount[itemcat] = 0;
-                                catCount[itemcat] += 1;
-                                if (catCount[itemcat] > maxItems) continue;
-                                var it = cardTmpl.content.cloneNode(true)
-                                it.querySelector('h5').innerText = item.title;
-                                it.querySelector('p').innerText = item.description.trim().replaceAll('<p>', '').replaceAll('</p>', '').substr(0, 100)+'...';
-                                if(item.enclosure.link) it.querySelector('img').setAttribute('src', item.enclosure.link);
-                                it.querySelector('img').setAttribute('title', itemcat);
-                                it.querySelector('a').setAttribute('href', item.link);
-                                it.querySelector('small.pubdate').innerText = timeSince(new Date(item.pubDate))+' geleden';
-                                it.querySelector('small.pubdate').setAttribute('title', item.pubDate);
-                                it.querySelector('small.category').innerText = itemcat;
-                                container.append(it);
-                            };
-                            printCategories();
-                        }
-                    }
-                };
-                xhr.open(
-                    'GET',
-                    `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&api_key=${RSS2JSON_API_KEY}&count=999`,
-                    true
-                );
-                xhr.send();
-            }
-
-            function printCategories () {
-                categories.forEach((name) => {
-                    var cat = catTmpl.content.cloneNode(true)
-                    cat.querySelector('li').innerText = name;
-                    if (ignoredCategories[name]) {
-                        if (DEBUG) console.log('ignoring '+name);
-                        cat.querySelector('li').classList.add('negeren');
-                    };
-                    categoriesul.append(cat);
-                });
-            };
-
-            getFeed(feed, maxItemsPerFeed);
+            document.addEventListener("DOMContentLoaded", () => {
+				readFeed();
+			});
         </script>
+        <script src="script.js"></script>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 </html>
