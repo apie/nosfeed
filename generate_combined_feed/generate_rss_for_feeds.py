@@ -46,7 +46,7 @@ class MyGen(feedgenerator.Rss201rev2Feed):
         handler.endElement("rss")
 
 
-def write_complete_rss_for_feeds(feeds, filename):
+def write_complete_rss_for_feeds(feeds, filename, max_items):
     new_feed = MyGen(
         title="NOS combined feed",
         description="NOS combined feed",
@@ -74,6 +74,7 @@ def write_complete_rss_for_feeds(feeds, filename):
                 categories=(feed_name,),
             )
     new_feed.items.sort(key=lambda it: it['pubdate'], reverse=True)
+    new_feed.items = new_feed.items[0:max_items]
     with open(path.join(path.dirname(path.realpath(argv[0])), 'static', filename), 'w') as f:
         new_feed.write(f, encoding='utf-8')
 
@@ -81,4 +82,4 @@ def write_complete_rss_for_feeds(feeds, filename):
 if __name__ == '__main__':
     with open(path.join(path.dirname(path.realpath(argv[0])), 'feeds.csv')) as c:
         feeds = c.readlines()
-    write_complete_rss_for_feeds(feeds, 'combined.rss')
+    write_complete_rss_for_feeds(feeds, 'combined.rss', 100)
