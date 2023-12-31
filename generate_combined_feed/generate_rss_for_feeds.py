@@ -36,7 +36,7 @@ class MyGen(feedgenerator.Rss201rev2Feed):
         handler = feedgenerator.SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
         ######## \/\/\/\/
-        handler.processingInstruction('xml-stylesheet', 'href="/static/style.xsl" type="text/xsl"')
+        handler.processingInstruction('xml-stylesheet', 'href="style.xsl" type="text/xsl"')
         ######## /\/\/\/\
         handler.startElement("rss", self.rss_attributes())
         handler.startElement("channel", self.root_attributes())
