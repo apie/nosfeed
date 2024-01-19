@@ -3,7 +3,7 @@ venv/
 *.rss
 config.js
 feeds.csv
-deploy.bash
+deploy*.bash
 oud/
 todo.txt
 debug.bash
