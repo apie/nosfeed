@@ -6,6 +6,7 @@ import datetime
 import feedparser
 import dateparser
 import feedgenerator
+import re
 from sys import argv
 from os import path
 from dataclasses import dataclass
@@ -19,6 +20,11 @@ class Enclosure:
     @property
     def length(self):
         return str(len(self.url))
+
+
+MIME_TYPE = {
+    'jpg': 'image/jpeg'
+}
 
 
 def yield_feed_entry(feed_url):
@@ -62,9 +68,17 @@ def write_complete_rss_for_feeds(feeds, filename, max_items, max_description_len
             if item['title'] in seen:
                 continue
             seen.add(item['title'])
+            enclosure = None
             enclosure_list = [l for l in item['links'] if l['rel'] == 'enclosure']
             enclosure_dict = enclosure_list[0] if enclosure_list else None
-            enclosure = Enclosure(enclosure_dict['href'], mime_type=enclosure_dict['type']) if enclosure_dict else None
+            if enclosure_dict:
+                enclosure = Enclosure(enclosure_dict['href'], mime_type=enclosure_dict['type'])
+            elif '<img src="' in item['description']:
+                # Description contains image
+                href = re.findall(r'<img src="(.+)" />', item['description'])[0]
+                enclosure = Enclosure(href, mime_type=MIME_TYPE[href.rsplit('.', 1)[-1]])
+                # Overwrite description
+                item['description'] = item['title']
             new_feed.add_item(
                 title=item['title'],
                 link=item['link'],
