@@ -4,61 +4,61 @@ const DEBUG = new URLSearchParams(window.location.search).get('debug') === 'true
 const maxItemsPerFeed = localStorage.getItem('maxItemsPerFeed') || 10;
 const maxItems = localStorage.getItem('maxItems') || 20;
 [10, 20, 50, 100].forEach((m) => {
-	var btn = btnTmpl.content.cloneNode(true).querySelector('button')
-	btn.textContent = m;
-	if (m == maxItemsPerFeed) btn.classList.add('active');
-	btnContainer.append(btn);
+    var btn = btnTmpl.content.cloneNode(true).querySelector('button')
+    btn.textContent = m;
+    if (m == maxItemsPerFeed) btn.classList.add('active');
+    btnContainer.append(btn);
 });
 [10, 20, 50, 100].forEach((m) => {
-	var btn = maxMsgBtnTmpl.content.cloneNode(true).querySelector('button')
-	btn.textContent = m;
-	if (m == maxItems) btn.classList.add('active');
-	maxMsgBtnContainer.append(btn);
+    var btn = maxMsgBtnTmpl.content.cloneNode(true).querySelector('button')
+    btn.textContent = m;
+    if (m == maxItems) btn.classList.add('active');
+    maxMsgBtnContainer.append(btn);
 });
 
 blacklistInput.value = localStorage.getItem('blackList') || '';
 function saveBlackList(e) {
-	localStorage.setItem('blackList', e.value);
+    localStorage.setItem('blackList', e.value);
 };
 
 function toggleItemsPerFeed(e) {
-	localStorage.setItem('maxItemsPerFeed', e.textContent);
-	Array.from(e.parentElement.children).forEach((c) => c.classList.remove('active'));
-	e.classList.toggle('active');
-	//window.location.reload();
+    localStorage.setItem('maxItemsPerFeed', e.textContent);
+    Array.from(e.parentElement.children).forEach((c) => c.classList.remove('active'));
+    e.classList.toggle('active');
+    //window.location.reload();
 };
 
 function toggleMaxItems(e) {
-	localStorage.setItem('maxItems', e.textContent);
-	Array.from(e.parentElement.children).forEach((c) => c.classList.remove('active'));
-	e.classList.toggle('active');
-	//window.location.reload();
+    localStorage.setItem('maxItems', e.textContent);
+    Array.from(e.parentElement.children).forEach((c) => c.classList.remove('active'));
+    e.classList.toggle('active');
+    //window.location.reload();
 };
 
 function toggleHideSeen(e) {
-	localStorage.setItem('hideSeen', e.checked);
+    localStorage.setItem('hideSeen', e.checked);
 };
 
 let ignoredCategories = JSON.parse(localStorage.getItem('ignoredCategories') || '{}');
 function toggleCategory(e) {
-	ignoredCategories[e.innerText] = !Boolean(ignoredCategories[e.innerText]);
-	localStorage.setItem('ignoredCategories', JSON.stringify(ignoredCategories));
-	e.classList.toggle('negeren');
-	//window.location.reload();
+    ignoredCategories[e.innerText] = !Boolean(ignoredCategories[e.innerText]);
+    localStorage.setItem('ignoredCategories', JSON.stringify(ignoredCategories));
+    e.classList.toggle('negeren');
+    //window.location.reload();
 };
 
 function markSeen(e) {
-	if (localStorage.getItem('hideSeen') !== 'true') return;
-	if (DEBUG) console.log('marking as seen '+e.href);
-	// expire in two days
-	document.cookie = e.href+'=seen; max-age=172800; SameSite=Strict;';
+    if (localStorage.getItem('hideSeen') !== 'true') return;
+    if (DEBUG) console.log('marking as seen '+e.href);
+    // expire in two days
+    document.cookie = e.href+'=seen; max-age=172800; SameSite=Strict;';
 }
 var seen = new Set();
 if (localStorage.getItem('hideSeen') === 'true') {
-	hideseencheckbox.checked = true;
-	// Load opened items from cookie and add to seen-set
-	let c = document.cookie;
-	c.split(';').map((c) => c.split('=')[0].trim()).forEach((u) => seen.add(u));
+    hideseencheckbox.checked = true;
+    // Load opened items from cookie and add to seen-set
+    let c = document.cookie;
+    c.split(';').map((c) => c.split('=')[0].trim()).forEach((u) => seen.add(u));
 };
 
 function addItem(item) {
@@ -103,15 +103,15 @@ function addItem(item) {
 }
 
 function printCategories () {
-	categories.forEach((name) => {
-		var cat = catTmpl.content.cloneNode(true)
-		cat.querySelector('li').innerText = name;
-		if (ignoredCategories[name]) {
-			if (DEBUG) console.log('ignoring '+name);
-			cat.querySelector('li').classList.add('negeren');
-		};
-		categoriesul.append(cat);
-	});
+    categories.forEach((name) => {
+        var cat = catTmpl.content.cloneNode(true)
+        cat.querySelector('li').innerText = name;
+        if (ignoredCategories[name]) {
+            if (DEBUG) console.log('ignoring '+name);
+            cat.querySelector('li').classList.add('negeren');
+        };
+        categoriesul.append(cat);
+    });
 };
 
 
