@@ -52,8 +52,8 @@ function markSeen(e) {
     if (DEBUG) console.log('marking as seen '+e.href);
     // expire in two days
     document.cookie = e.href+'=seen; max-age=172800; SameSite=Strict;';
-    // hide/remove the card
-    e.parentElement.parentElement.remove();
+    // hide the card
+    e.parentElement.parentElement.style.display="none";
 }
 var seen = new Set();
 if (localStorage.getItem('hideSeen') === 'true') {
