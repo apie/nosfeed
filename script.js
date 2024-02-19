@@ -3,6 +3,7 @@ const categories = new Set();
 const DEBUG = new URLSearchParams(window.location.search).get('debug') === 'true';
 const maxItemsPerFeed = localStorage.getItem('maxItemsPerFeed') || 10;
 const maxItems = localStorage.getItem('maxItems') || 20;
+const hideSeenDays = 5;
 [10, 20, 50, 100].forEach((m) => {
     var btn = btnTmpl.content.cloneNode(true).querySelector('button')
     btn.textContent = m;
@@ -50,8 +51,8 @@ function toggleCategory(e) {
 function markSeen(e) {
     if (localStorage.getItem('hideSeen') !== 'true') return;
     if (DEBUG) console.log('marking as seen '+e.href);
-    // expire in two days
-    document.cookie = e.href+'=seen; max-age=172800; SameSite=Strict;';
+    // expire in a few days
+    document.cookie = `${e.href}=seen; max-age=${60*60*24*hideSeenDays}; SameSite=Strict;`;
     // hide the card
     e.parentElement.parentElement.style.display="none";
 }
