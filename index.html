@@ -82,11 +82,15 @@
               </div>
             </template>
         </div>
-        <footer id="footer">&mdash; alle content (c) <a href="https://www.nos.nl">NOS</a> en <a href="https://www.nu.nl">nu.nl</a>. site gemaakt door <a href="https://www.denick.org">denick.org</a> &mdash;</footer>
+        <footer id="footer">
+            &mdash; Geladen <span id="dateLoaded">?</span> &mdash;<br>
+            &mdash; Alle content &copy; <a href="https://www.nos.nl">NOS.nl</a> en <a href="https://www.nu.nl">nu.nl</a>. Site gemaakt door <a href="https://www.denick.org">denick.org</a> &mdash;
+        </footer>
         
         <script src="util.js"></script>
         <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", () => {
+                dateLoaded.innerText = new Date().toLocaleString();
 				readFeed();
 			});
         </script>
