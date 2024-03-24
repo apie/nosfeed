@@ -1,7 +1,7 @@
 function timeSince(timeStamp) {
 	// https://stackoverflow.com/questions/6108819/javascript-timestamp-to-relative-time/23352499#23352499
     var now = new Date(),
-        secondsPast = (now.getTime() - timeStamp.getTime() ) / 1000;
+        secondsPast = Math.round((now.getTime() - timeStamp.getTime() ) / 1000);
     if(secondsPast < 60){
         if (secondsPast === 1) return secondsPast+' seconde'
         return secondsPast+' seconden';

@@ -83,14 +83,20 @@
             </template>
         </div>
         <footer id="footer">
-            &mdash; Geladen <span id="dateLoaded">?</span> &mdash;<br>
+            &mdash; Pagina geladen <span id="dateLoaded">?</span> (<span id="timeSinceSpan">0 minuten</span> geleden) &mdash;<br>
             &mdash; Alle content &copy; <a href="https://www.nos.nl">NOS.nl</a> en <a href="https://www.nu.nl">nu.nl</a>. Site gemaakt door <a href="https://www.denick.org">denick.org</a> &mdash;
         </footer>
         
-        <script src="util.js"></script>
+        <script src="util.js?1"></script>
         <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", () => {
-                dateLoaded.innerText = new Date().toLocaleString();
+                const d = new Date();
+                dateLoaded.innerText = d.toLocaleString();
+                let timerId = setInterval(() => timeSinceSpan.innerText = timeSince(d) , 60_000);
+                setTimeout(() => {
+                    clearInterval(timerId);
+                    timeSinceSpan.innerText = '>' + timeSinceSpan.innerText;
+                }, 121 * 60_000);
                 readFeed();
             });
         </script>
