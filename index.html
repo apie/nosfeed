@@ -92,7 +92,12 @@
             document.addEventListener("DOMContentLoaded", () => {
                 const d = new Date();
                 dateLoaded.innerText = d.toLocaleString();
-                let timerId = setInterval(() => timeSinceSpan.innerText = timeSince(d) , 60_000);
+                let timerId = setInterval(() => {
+                    // Update date loaded string in footer
+                    timeSinceSpan.innerText = timeSince(d);
+                    // Update card pubdate strings
+                    document.querySelectorAll('.pubdate').forEach((e) => e.innerText = timeSince(new Date(e.dataset.pubDate))+' geleden');
+                } , 60_000);
                 setTimeout(() => {
                     clearInterval(timerId);
                     timeSinceSpan.innerText = '>' + timeSinceSpan.innerText;
@@ -100,7 +105,7 @@
                 readFeed();
             });
         </script>
-        <script src="script.js?2"></script>
+        <script src="script.js?3"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
     </body>
 </html>

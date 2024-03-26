@@ -100,6 +100,7 @@ function addItem(item) {
     it.querySelector('a').setAttribute('href', link);
     it.querySelector('small.pubdate').innerText = timeSince(new Date(pubDate))+' geleden';
     it.querySelector('small.pubdate').setAttribute('title', pubDate);
+    it.querySelector('small.pubdate').dataset.pubDate = pubDate;
     it.querySelector('small.category').innerText = category;
     container.append(it);
     return true;
