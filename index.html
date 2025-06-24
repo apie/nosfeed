@@ -83,29 +83,43 @@
             </template>
         </div>
         <footer id="footer">
-            &mdash; Pagina geladen <span id="dateLoaded">?</span> (<span id="timeSinceSpan">0 minuten</span> geleden) &mdash;<br>
+            &mdash; Data opgehaald <span id="dateLoaded">?</span> (<span id="timeSinceSpan">0 minuten</span> geleden) &mdash;<br>
             &mdash; Alle content &copy; <a href="https://www.nos.nl">NOS.nl</a> en <a href="https://www.nu.nl">nu.nl</a>. Site gemaakt door <a href="https://www.denick.org">denick.org</a> &mdash;
         </footer>
         
         <script src="util.js?1"></script>
         <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", () => {
-                const d = new Date();
-                dateLoaded.innerText = d.toLocaleString();
-                let timerId = setInterval(() => {
-                    // Update date loaded string in footer
-                    timeSinceSpan.innerText = timeSince(d);
-                    // Update card pubdate strings
-                    document.querySelectorAll('.pubdate').forEach((e) => e.innerText = timeSince(new Date(e.dataset.pubDate))+' geleden');
-                } , 60_000);
-                setTimeout(() => {
-                    clearInterval(timerId);
-                    timeSinceSpan.innerText = '>' + timeSinceSpan.innerText;
-                }, 121 * 60_000);
-                readFeed();
+                readFeed(
+                    (resp) => {
+                        const lastModifiedStr = resp.headers.get('last-modified');
+                        let dateTimeLoaded;
+                        if (lastModifiedStr){
+                            dateTimeLoaded = new Date(lastModifiedStr);
+                        } else {
+                            dateTimeLoaded = new Date(); // fallback is now
+                        }
+                        dateLoaded.innerText = dateTimeLoaded.toLocaleString();
+                        // Directly update date loaded string in footer
+                        timeSinceSpan.innerText = timeSince(dateTimeLoaded);
+                        let timerId = setInterval(() => {
+                            // *Now periodically (every minute) update the footer and cards*
+                            // Update date loaded string in footer
+                            timeSinceSpan.innerText = timeSince(dateTimeLoaded);
+                            // Update card pubdate strings
+                            document.querySelectorAll('.pubdate').forEach((e) => e.innerText = timeSince(new Date(e.dataset.pubDate))+' geleden');
+                        } , 60_000);
+                        setTimeout(() => {
+                            // After 121 minutes stop updating and prepend the text, indicating it is old.
+                            clearInterval(timerId);
+                            timeSinceSpan.innerText = '>' + timeSinceSpan.innerText;
+                            document.querySelectorAll('.pubdate').forEach((e) => e.innerText = '>' + e.innerText);
+                        }, 121 * 60_000);
+                    }
+                );
             });
         </script>
-        <script src="script.js?3"></script>
+        <script src="script.js?4"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
     </body>
 </html>

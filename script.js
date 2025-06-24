@@ -119,8 +119,8 @@ function printCategories () {
 };
 
 
-async function readFeed() {
-    let resp= await fetch('combined.rss')
+async function readFeed(callbackfn) {
+    let resp = await fetch('combined.rss')
     let inStr = await resp.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(inStr, "application/xml");
@@ -133,5 +133,6 @@ async function readFeed() {
         if (visibleItems >= maxItems) break;
     }
     printCategories();
+    if (callbackfn) callbackfn(resp);
 };
 
