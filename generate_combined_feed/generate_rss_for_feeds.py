@@ -85,7 +85,7 @@ def write_complete_rss_for_feeds(feeds, filename, max_items, max_description_len
                 link=item['link'],
                 description=item['description'][0:max_description_length],
                 pubdate=item['published_datetime'],
-                enclosure=enclosure,
+                enclosures=[enclosure] if enclosure else None,
                 categories=(feed_name,),
             )
     new_feed.items.sort(key=lambda it: it['pubdate'], reverse=True)
