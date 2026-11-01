@@ -1,4 +1,10 @@
-lxml==4.9.3
-feedparser==6.0.10
 dateparser==1.1.8
 feedgenerator==2.1.0
+feedparser==6.0.10
+lxml==6.1.0
+python-dateutil==4.0.0
+pytz==2026.6
+regex==2026.9.29
+sgmllib3k==1.0.0
+tzdata==2026.6
+tzlocal==5.4.5
