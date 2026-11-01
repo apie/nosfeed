@@ -23,7 +23,8 @@ class Enclosure:
 
 
 MIME_TYPE = {
-    'jpg': 'image/jpeg'
+    'jpg': 'image/jpeg',
+    'webp': 'image/webp',
 }
 
 
